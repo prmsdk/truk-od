@@ -20,6 +20,15 @@ class Welcome extends CI_Controller {
 	 */
 	public function index()
 	{
-		$this->load->view('welcome_message');
+		// $this->load->view('welcome_message');
+		$data['title'] = 'Welcome to Web Deteksi Over Dimension dan Overload Menggunakan Metode YOLO dan Tiny-YOLO';
+        $data['navParent'] = 'welcome';
+        $this->session->set_userdata(["ujicoba" => 'false']);
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/sidebar', $data);
+        $this->load->view('weight/dashboard', $data);
+        $this->load->view('templates/footer_js', $data);
+        $this->load->view('templates/custom_js', $data);
+        $this->load->view('templates/footer');
 	}
 }

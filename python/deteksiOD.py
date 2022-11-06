@@ -1,12 +1,10 @@
 import cv2
 import numpy as np
 import time
-import os
 
 # Load Yolo
-print("LOADING YOLO")
-# net = cv2.dnn.readNet("yolov4-custom_6000.weights", "yolov4-custom.cfg")
-#save all the names in file o the list classes
+# print("LOADING YOLO")
+# net = cv2.dnn.readNet("yolov4-custom_6000.weights", "yolov4-custom.cfg") || # save all the names in file o the list classes
 classes = []
 with open("coco_od.names", "r") as f:
     classes = [line.strip() for line in f.readlines()]
@@ -23,15 +21,12 @@ def yolo_capture(img, net):
                     '']
     # Capture frame-by-frame
     # img = cv2.imread(img)
-    #     img = cv2.resize(img, None, fx=0.4, fy=0.4)
+    # img = cv2.resize(img, None, fx=0.4, fy=0.4)
     height, width, channels = img.shape
 
     arrayCapture[0] = height
     arrayCapture[1] = width
-    # print("hImage = ", height)
-    # print("wImage = ", width)
-
-    # USing blob function of opencv to preprocess image
+    # Using blob function of opencv to preprocess image
     blob = cv2.dnn.blobFromImage(img, 1 / 255.0, (352, 352), swapRB=True, crop=False)
     # Detecting objects
     net.setInput(blob)
@@ -77,32 +72,30 @@ def yolo_capture(img, net):
                     arrayCapture[3][4] = w
                     arrayCapture[3][5] = h
 
-    # We use NMS function in opencv to perform Non-maximum Suppression
-    # we give it score threshold and nms threshold as arguments.
+    # We use NMS function in opencv to perform Non-maximum Suppression || we give it score threshold and nms threshold as arguments.
     indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
     colors = [[0, 255, 0], [0, 255, 255]]
     # colors = np.array_str["#FFF", "#FEFEFE"]
-    for i in range(len(boxes)):
-        if i in indexes:
-            x, y, w, h = boxes[i]
-            label = str(classes[class_ids[i]])
-            color = colors[class_ids[i]]
-            confidence = int(confidences[class_ids[i]] * 100)
-            cv2.rectangle(img, (x, y), (x + w, y + h), color, 2)
-            cv2.putText(img, label + str(confidence) + '%', (x, y + 10), cv2.FONT_HERSHEY_SIMPLEX, 1/3 , color, 1)
-    #
-    #         print("classId = ", class_ids[i])
-    #         print("className = ", label)
-    #         print("h_" + label + " = " + str(h))
-    #         print("w_" + label + " = " + str(w))
-    #         print("x_" + label + " = " + str(x))
-    #         print("y_" + label + " = " + str(y))
+    # for i in range(len(boxes)):
+    #     if i in indexes:
+    #         x, y, w, h = boxes[i]
+    #         label = str(classes[class_ids[i]])
+    #         color = colors[class_ids[i]]
+    #         confidence = int(confidences[class_ids[i]] * 100)
+    #         cv2.rectangle(img, (x, y), (x + w, y + h), color, 2)
+    #         cv2.putText(img, label + str(confidence) + '%', (x, y + 10), cv2.FONT_HERSHEY_SIMPLEX, 1/3 , color, 1)
 
     # cv2.imshow("Image", img)
     if (not arrayCapture[2][0]) | (not arrayCapture[3][0]):
         print("Terdeteksi Kegagalan Deteksi OD")
     else:
-        filenameOD = './truk-od/trukOD' + str(int(time.time())) + '.jpg'
+        # BBOX Kepala
+        cv2.rectangle(img, (arrayCapture[2][2], arrayCapture[2][3]), (arrayCapture[2][2] + arrayCapture[2][4], arrayCapture[2][3] + arrayCapture[2][5]), [0, 255, 0], 2)
+        cv2.putText(img, arrayCapture[2][0] + str(arrayCapture[2][1]) + '%', (arrayCapture[2][2], arrayCapture[2][3] + 10), cv2.FONT_HERSHEY_SIMPLEX, 1 / 3, [0, 255, 0], 1)
+        # # BBOX Badan
+        cv2.rectangle(img, (arrayCapture[3][2], arrayCapture[3][3]), (arrayCapture[3][2] + arrayCapture[3][4], arrayCapture[3][3] + arrayCapture[3][5]), [0, 255, 255], 2)
+        cv2.putText(img, arrayCapture[3][0] + str(arrayCapture[3][1]) + '%', (arrayCapture[3][2], arrayCapture[3][3] + 10), cv2.FONT_HERSHEY_SIMPLEX, 1/3 , [0, 255, 255], 1)
+        filenameOD = './test-truk-od/trukOD' + str(int(time.time())) + '.jpg'
         cv2.imwrite(filename= filenameOD, img=img)
         arrayCapture[4] = filenameOD
     return arrayCapture
